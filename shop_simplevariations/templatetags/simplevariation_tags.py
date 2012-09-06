@@ -12,4 +12,4 @@ def get_option_groups(value):
 @register.filter
 def get_options(value):
     """Returns all options for the given option group."""
-    return value.option_set.all()
+    return value.get_options()
