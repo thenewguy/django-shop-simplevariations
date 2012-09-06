@@ -57,6 +57,7 @@ class OptionGroup(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
     products = models.ManyToManyField(Product, related_name="option_groups",
                                       blank=True, null=True)
+    subgroup = models.ForeignKey('self', blank=True, null=True)
 
     def __unicode__(self):
         return self.name
@@ -65,8 +66,14 @@ class OptionGroup(models.Model):
         '''
         A helper method to retrieve a list of options in this OptionGroup
         '''
-        options = Option.objects.filter(group=self)
-        return options
+        group = self
+        groups = []
+        while group:
+            groups.append(group)
+            group = group.subgroup
+            if group in groups:
+                break
+        return Option.objects.filter(group__in=groups)
 
 class Option(models.Model):
     '''
