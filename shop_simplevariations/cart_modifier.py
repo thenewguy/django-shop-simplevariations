@@ -14,9 +14,15 @@ class ProductOptionsModifier(BaseCartModifier):
         '''
         selected_options = CartItemOption.objects.filter(cartitem=cart_item)
         for selected_opt in selected_options:
+            group = selected_opt.group
             option_obj = selected_opt.option
             price = option_obj.price * cart_item.quantity
-            data = (option_obj.name, price)
+            identifier = "%s%s: %s" % (
+                group,
+                " (%d of %d)" % (selected_opt.choice, group.choose_count) if 1 < selected_opt.group else "",
+                option_obj.name
+            )
+            data = (identifier, price)
             # Don't forget to update the running total!
             cart_item.current_total = cart_item.current_total + price
             cart_item.extra_price_fields.append(data)

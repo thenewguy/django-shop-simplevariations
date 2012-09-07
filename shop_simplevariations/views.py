@@ -4,8 +4,8 @@ from shop.models.cartmodel import CartItem
 from shop.models.productmodel import Product
 from shop.util.cart import get_or_create_cart
 from shop.views.cart import CartDetails
-from shop_simplevariations.models import TextOption, CartItemTextOption
-
+from shop_simplevariations.models import TextOption, CartItemTextOption, OptionGroup
+from util import parse_option_group_name, prefix as option_group_name_prefix
 
 class SimplevariationCartDetails(CartDetails):
     """Cart view that answers GET and POSTS request."""
@@ -23,7 +23,7 @@ class SimplevariationCartDetails(CartDetails):
         option_ids = []
         text_option_ids = {} # A dict of {TextOption.id:CartItemTextOption.text}
         for key in self.request.POST.keys():
-            if key.startswith('add_item_option_group_'):
+            if key.startswith(option_group_name_prefix):
                 option_ids.append(self.request.POST[key])
             elif key.startswith('add_item_text_option_'):
                 id = key.split('add_item_text_option_')[1]
@@ -73,11 +73,14 @@ class SimplevariationCartDetails(CartDetails):
 
         post = self.request.POST
         for key in self.request.POST.keys():
-            if key.startswith('add_item_option_group_'):
+            if key.startswith(option_group_name_prefix):
+                data = parse_option_group_name(key)
                 option = Option.objects.get(pk=int(post[key]))
                 cartitem_option = CartItemOption()
                 cartitem_option.cartitem = cart_item
                 cartitem_option.option = option
+                cartitem_option.group = OptionGroup.objects.get(pk=data["pk"])
+                cartitem_option.choice = data["choice"]
                 cartitem_option.save()
             elif key.startswith('add_item_text_option_'):
                 id = key.split('add_item_text_option_')[1]

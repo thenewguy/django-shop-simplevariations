@@ -58,6 +58,7 @@ class OptionGroup(models.Model):
     products = models.ManyToManyField(Product, related_name="option_groups",
                                       blank=True, null=True)
     subgroup = models.ForeignKey('self', blank=True, null=True)
+    choose_count = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name
@@ -74,6 +75,24 @@ class OptionGroup(models.Model):
             if group in groups:
                 break
         return Option.objects.filter(group__in=groups)
+    
+    def get_choose_count(self, groups=None):
+        '''
+        A helper method to retrieve the choose_count.  If choose_count is zero
+        and subgroup is set, use the subgroup's choose_count.  If the final
+        choose_count is zero, return 1 because a choose_count of zero
+        does not make sense.
+        '''
+        choose_count = self.choose_count
+        if not choose_count and self.subgroup:
+            if groups is None:
+                groups = []
+            if self not in groups:
+                groups.append(self)
+                choose_count = self.subgroup.get_choose_count(groups=groups)
+        if not choose_count:
+            choose_count = 1
+        return choose_count 
 
 class Option(models.Model):
     '''
@@ -100,4 +119,6 @@ class CartItemOption(models.Model):
     '''
     cartitem = models.ForeignKey(CartItem)
     option = models.ForeignKey(Option)
+    group = models.ForeignKey(OptionGroup)
+    choice = models.PositiveSmallIntegerField(default=0)
 
