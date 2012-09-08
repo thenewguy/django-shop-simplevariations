@@ -41,8 +41,17 @@ class SimplevariationCartDetails(CartDetails):
                 else:
                     # verify the option isn't required
                     data = parse_option_group_name(key)
-                    if OptionGroup.objects.get(pk=data["pk"]).required:
-                        store_error(errors, key, "required", "Field Is Required")
+                    og = OptionGroup.objects.get(pk=data["pk"])
+                    if og.required:
+                        choose_count = og.get_choose_count()
+                        ek = u"%s%s" % (
+                            og,
+                            u" (%d of %d)" % (
+                                data["choice"],
+                                choose_count
+                            ) if 1 < choose_count else ""
+                        )
+                        store_error(errors, ek, "Required", "You must make a selection.")
             elif key.startswith('add_item_text_option_'):
                 pk = key.split('add_item_text_option_')[1]
                 txtopt = TextOption.objects.get(pk=pk)
