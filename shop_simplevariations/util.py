@@ -24,3 +24,6 @@ def parse_option_group_name(name):
         data["pk"] = pk
         data["choice"] = choice
     return data
+
+def append_error(errors, key, error):
+    errors.get(key, []).append(error)

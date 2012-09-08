@@ -6,7 +6,7 @@ from shop.models.productmodel import Product
 from shop.util.cart import get_or_create_cart
 from shop.views.cart import CartDetails
 from shop_simplevariations.models import TextOption, CartItemTextOption, OptionGroup
-from util import parse_option_group_name, prefix as option_group_name_prefix
+from util import parse_option_group_name, prefix as option_group_name_prefix, append_error
 
 class SimplevariationCartDetails(CartDetails):
     """Cart view that answers GET and POSTS request."""
@@ -23,6 +23,7 @@ class SimplevariationCartDetails(CartDetails):
         #now we need to find out which options have been chosen by the user
         option_ids = []
         text_option_ids = {} # A dict of {TextOption.id:CartItemTextOption.text}
+        
         errors = {}
         for key in self.request.POST.keys():
             if key.startswith(option_group_name_prefix):
@@ -30,16 +31,30 @@ class SimplevariationCartDetails(CartDetails):
                 if pk:
                     option_ids.append(pk)
                 else:
+                    # remove entry from post dictionary
+                    del self.request.POST[key]
+                    
+                    # verify the option isn't required
                     data = parse_option_group_name(key)
                     if OptionGroup.objects.get(pk=data["pk"]).required:
-                        errors[key] = "required"
+                        append_error(errors, key, "required")
             elif key.startswith('add_item_text_option_'):
                 pk = key.split('add_item_text_option_')[1]
+                txtopt = TextOption.objects.get(pk=pk)
                 txt = self.request.POST[key]
-                if txt != '':
+                if txt:
                     text_option_ids.update({pk:txt})
-                elif TextOption.objects.get(pk=pk).required:
-                    errors[key] = "required"
+                    
+                    # verify text meets max_length requirements
+                    if txtopt.max_length and txtopt.max_length < len(txt):
+                        append_error(errors, key, "max_length")
+                else:
+                    # remove entry from post dictionary
+                    del self.request.POST[key]
+                    
+                    # verify the option isn't required
+                    if txtopt.required:
+                        append_error(errors, key, "required")
         
         if errors:
             raise ValidationError("%s" % errors)
@@ -85,16 +100,11 @@ class SimplevariationCartDetails(CartDetails):
             return self.success()
 
         post = self.request.POST
-        errors = {}
         for key in self.request.POST.keys():
             if key.startswith(option_group_name_prefix):
                 data = parse_option_group_name(key)
                 group = OptionGroup.objects.get(pk=data["pk"])
                 pk = post[key]
-                if not pk:
-                    if group.required:
-                        errors[key] = "required"
-                    continue
                 option = Option.objects.get(pk=pk)
                 cartitem_option = CartItemOption()
                 cartitem_option.cartitem = cart_item
@@ -105,17 +115,11 @@ class SimplevariationCartDetails(CartDetails):
             elif key.startswith('add_item_text_option_'):
                 pk = key.split('add_item_text_option_')[1]
                 txt = self.request.POST[key]
-                if txt != '':
-                    txt_opt = TextOption.objects.get(pk=pk)
-                    cito = CartItemTextOption()
-                    cito.text_option = txt_opt
-                    cito.text = txt
-                    cito.cartitem = cart_item
-                    cito.save()
-                elif TextOption.objects.get(pk=pk).required:
-                    errors[key] = "required"
-                
-        if errors:
-            raise ValidationError("%s" % errors)
+                txt_opt = TextOption.objects.get(pk=pk)
+                cito = CartItemTextOption()
+                cito.text_option = txt_opt
+                cito.text = txt
+                cito.cartitem = cart_item
+                cito.save()
                 
         return self.success()
