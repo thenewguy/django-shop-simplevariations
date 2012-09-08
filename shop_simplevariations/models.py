@@ -117,6 +117,9 @@ class CartItemOption(models.Model):
     Generally, this is used by
     shop.cart.modifiers.product_options.ProductOptionsModifier
     '''
+    class Meta:
+        ordering = ('group', 'choice')
+        
     cartitem = models.ForeignKey(CartItem)
     option = models.ForeignKey(Option)
     group = models.ForeignKey(OptionGroup)
