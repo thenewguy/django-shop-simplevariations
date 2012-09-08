@@ -20,6 +20,7 @@ class TextOption(models.Model):
     price = CurrencyField(help_text='The price for this custom text') # The price
     #length = models.IntegerField() # TODO: make this limiting in the form
     products = models.ManyToManyField(Product, related_name='text_options')
+    required = models.BooleanField(default=True, blank=True)
     
     
     def __unicode__(self):
@@ -60,6 +61,7 @@ class OptionGroup(models.Model):
                                       blank=True, null=True)
     subgroup = models.ForeignKey('self', blank=True, null=True)
     choose_count = models.PositiveSmallIntegerField(default=0)
+    required = models.BooleanField(default=True, blank=True)
 
     def __unicode__(self):
         return self.name
