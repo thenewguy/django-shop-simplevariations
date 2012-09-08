@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.validators import MinValueValidator
 from django.db import models
 from shop.models.cartmodel import CartItem
 from shop.models.productmodel import Product
@@ -123,5 +124,5 @@ class CartItemOption(models.Model):
     cartitem = models.ForeignKey(CartItem)
     option = models.ForeignKey(Option)
     group = models.ForeignKey(OptionGroup)
-    choice = models.PositiveSmallIntegerField(default=0)
+    choice = models.PositiveSmallIntegerField(default=0, validators=[MinValueValidator(0)])
 
