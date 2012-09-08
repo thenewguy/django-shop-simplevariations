@@ -1,3 +1,5 @@
+from shop.views import ShopTemplateResponseMixin
+
 prefix = "add_item_option_group_"
 midfix = "_choice_"
 
@@ -25,5 +27,15 @@ def parse_option_group_name(name):
         data["choice"] = choice
     return data
 
-def append_error(errors, key, error):
-    errors.get(key, []).append(error)
+def store_error(errors, key, name, description):
+    if not key in errors:
+        errors[key] = {}
+    errors[key][name] = description
+
+def render_errors_response(request, template_name, errors):
+    renderer = ShopTemplateResponseMixin()
+    renderer.request = request
+    renderer.template_name = template_name
+    context = errors
+    response = renderer.render_to_response(context)
+    return response
