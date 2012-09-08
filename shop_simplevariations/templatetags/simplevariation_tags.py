@@ -37,6 +37,10 @@ def get_xrange(value, start=0):
     return xrange(start, value)
 
 @register.filter
+def get_choice_range(value):
+    return get_xrange(value+1, 1)
+
+@register.filter
 def get_option_group_name(value, choice):
     """
     Returns the name to use for an option group's form field and label.

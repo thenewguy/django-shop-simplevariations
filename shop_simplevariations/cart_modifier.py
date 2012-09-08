@@ -19,7 +19,7 @@ class ProductOptionsModifier(BaseCartModifier):
             price = option_obj.price * cart_item.quantity
             identifier = "%s%s: %s" % (
                 group,
-                " (%d of %d)" % (selected_opt.choice, group.choose_count) if 1 < selected_opt.group else "",
+                " (%d of %d)" % (selected_opt.choice, group.get_choose_count()) if 1 < selected_opt.group else "",
                 option_obj.name
             )
             data = (identifier, price)
