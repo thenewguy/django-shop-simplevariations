@@ -36,6 +36,6 @@ def render_errors_response(request, template_name, errors):
     renderer = ShopTemplateResponseMixin()
     renderer.request = request
     renderer.template_name = template_name
-    context = errors
+    context = {"errors": errors}
     response = renderer.render_to_response(context)
     return response
