@@ -18,7 +18,7 @@ class TextOption(models.Model):
     name = models.CharField(max_length=255, help_text="A name for this option - this will be displayed to the user")
     description = models.CharField(max_length=255, null=True, blank=True, help_text='A longer description for this option')
     price = CurrencyField(help_text='The price for this custom text') # The price
-    #length = models.IntegerField() # TODO: make this limiting in the form
+    max_length = models.PositiveIntegerField(default=0, help_text='Limit the amount of text allowed.  A value of 0 means unlimited')
     products = models.ManyToManyField(Product, related_name='text_options')
     required = models.BooleanField(default=True, blank=True)
     
@@ -35,7 +35,7 @@ class CartItemTextOption(models.Model):
     
     If your use case is different, you should probably make a "text bit" Model
     """
-    text = models.CharField(max_length=255) # The actual text the client input
+    text = models.TextField() # The actual text the client input
     
     text_option = models.ForeignKey(TextOption)
     cartitem = models.ForeignKey(CartItem, related_name='text_option')
