@@ -1,4 +1,5 @@
 from .models import Option, CartItemOption
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from shop.models.cartmodel import CartItem
 from shop.models.productmodel import Product
@@ -22,15 +23,27 @@ class SimplevariationCartDetails(CartDetails):
         #now we need to find out which options have been chosen by the user
         option_ids = []
         text_option_ids = {} # A dict of {TextOption.id:CartItemTextOption.text}
+        errors = {}
         for key in self.request.POST.keys():
             if key.startswith(option_group_name_prefix):
-                option_ids.append(self.request.POST[key])
+                pk = self.request.POST[key]
+                if pk:
+                    option_ids.append(pk)
+                else:
+                    data = parse_option_group_name(key)
+                    if OptionGroup.objects.get(pk=data["pk"]).required:
+                        errors[key] = "required"
             elif key.startswith('add_item_text_option_'):
-                id = key.split('add_item_text_option_')[1]
+                pk = key.split('add_item_text_option_')[1]
                 txt = self.request.POST[key]
                 if txt != '':
-                    text_option_ids.update({id:txt})
-                    
+                    text_option_ids.update({pk:txt})
+                elif TextOption.objects.get(pk=pk).required:
+                    errors[key] = "required"
+        
+        if errors:
+            raise ValidationError("%s" % errors)
+        
         #now we need to find out if there are any cart items that have the exact
         #same set of options
         qs = CartItem.objects.filter(cart=cart_object).filter(product=product)
@@ -72,25 +85,37 @@ class SimplevariationCartDetails(CartDetails):
             return self.success()
 
         post = self.request.POST
+        errors = {}
         for key in self.request.POST.keys():
             if key.startswith(option_group_name_prefix):
                 data = parse_option_group_name(key)
-                option = Option.objects.get(pk=int(post[key]))
+                group = OptionGroup.objects.get(pk=data["pk"])
+                pk = post[key]
+                if not pk:
+                    if group.required:
+                        errors[key] = "required"
+                    continue
+                option = Option.objects.get(pk=pk)
                 cartitem_option = CartItemOption()
                 cartitem_option.cartitem = cart_item
                 cartitem_option.option = option
-                cartitem_option.group = OptionGroup.objects.get(pk=data["pk"])
+                cartitem_option.group = group
                 cartitem_option.choice = data["choice"]
                 cartitem_option.save()
             elif key.startswith('add_item_text_option_'):
-                id = key.split('add_item_text_option_')[1]
+                pk = key.split('add_item_text_option_')[1]
                 txt = self.request.POST[key]
                 if txt != '':
-                    txt_opt = TextOption.objects.get(pk=id)
+                    txt_opt = TextOption.objects.get(pk=pk)
                     cito = CartItemTextOption()
                     cito.text_option = txt_opt
                     cito.text = txt
                     cito.cartitem = cart_item
                     cito.save()
+                elif TextOption.objects.get(pk=pk).required:
+                    errors[key] = "required"
+                
+        if errors:
+            raise ValidationError("%s" % errors)
                 
         return self.success()
