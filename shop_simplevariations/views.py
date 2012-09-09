@@ -51,7 +51,7 @@ class SimplevariationCartDetails(CartDetails):
                                 choose_count
                             ) if 1 < choose_count else ""
                         )
-                        store_error(errors, ek, "Required", "You must make a selection.")
+                        store_error(errors, ek, "Required", "You must make a selection")
             elif key.startswith('add_item_text_option_'):
                 pk = key.split('add_item_text_option_')[1]
                 txtopt = TextOption.objects.get(pk=pk)
@@ -61,11 +61,11 @@ class SimplevariationCartDetails(CartDetails):
                     
                     # verify text meets max_length requirements
                     if txtopt.max_length and txtopt.max_length < len(txt):
-                        store_error(errors, key, "max_length", "Field Is Too Long")
+                        store_error(errors, txtopt.name, "Max Length", "Field Is Too Long")
                 else:
                     # verify the option isn't required
                     if txtopt.required:
-                        store_error(errors, key, "required", "Field Is Required")
+                        store_error(errors, txtopt.name, "Required", "Field Is Required")
         
         if errors:
             return render_errors_response(
