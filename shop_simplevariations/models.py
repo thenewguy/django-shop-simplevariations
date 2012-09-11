@@ -62,6 +62,7 @@ class OptionGroup(models.Model):
     subgroup = models.ForeignKey('self', blank=True, null=True)
     choose_count = models.PositiveSmallIntegerField(default=0)
     required = models.BooleanField(default=True, blank=True)
+    defaults = models.ManyToManyField("Option", null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -79,6 +80,16 @@ class OptionGroup(models.Model):
                 break
         return Option.objects.filter(group__in=groups)
     
+    def get_defaults(self):
+        '''
+        A helper method to retrieve the default options.  If "defaults" is not set and
+        subgroup is set, attempt to traverse the subgroup tree until defaults are found.
+        '''
+        defaults = self.defaults.all()
+        if not defaults and self.subgroup:
+            defaults = self.subgroup.get_defaults()
+        return defaults 
+        
     def get_choose_count(self, groups=None):
         '''
         A helper method to retrieve the choose_count.  If choose_count is zero
