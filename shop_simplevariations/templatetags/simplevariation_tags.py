@@ -16,6 +16,10 @@ def get_options(value):
     return value.get_options()
 
 @register.filter
+def get_defaults(value):
+    return value.defaults.all()
+
+@register.filter
 def get_xrange(value, start=0):
     """
     Filter - returns xrange from given value and optional start
@@ -49,3 +53,31 @@ def get_option_group_name(value, choice):
     representing which choice number is being rendered.
     """
     return create_option_group_name(value, choice)
+
+@register.assignment_tag
+def option_is_default(**kwargs):
+    """
+        option: the option model instance in question
+        group: the option group that references the option
+        choice: the option group choice count
+        
+        if defaults are not set, return false.
+        
+        if defaults are set, and there are more choices than
+        defaults, choices that do not have a default set
+        will use the last default set.
+        
+        e.g. defaults [a, b]
+        choice 1 default is a
+        choice 2 default is b
+        choice 3 default is b
+    """
+    option = kwargs["option"]
+    group = kwargs["group"]
+    choice = kwargs["choice"]
+    options = group.defaults.all()
+    
+    if len(options) < choice:
+        choice = len(options)
+    
+    return options and options[choice-1] == option
