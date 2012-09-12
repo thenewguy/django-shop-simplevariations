@@ -55,7 +55,7 @@ def get_option_group_name(value, choice):
     return create_option_group_name(value, choice)
 
 @register.assignment_tag
-def option_is_default(**kwargs):
+def get_default_option(**kwargs):
     """
         option: the option model instance in question
         group: the option group that references the option
@@ -80,4 +80,4 @@ def option_is_default(**kwargs):
     if len(options) < choice:
         choice = len(options)
     
-    return options and options[choice-1] == option
+    return options[choice-1] if options else None
