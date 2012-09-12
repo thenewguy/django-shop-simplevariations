@@ -81,3 +81,14 @@ def get_default_option(**kwargs):
         choice = len(options)
     
     return options[choice-1] if options else None
+
+@register.filter
+def relative_price(option, base):
+    price = option.price
+    if base:
+        price -= base.price
+    return price
+
+@register.filter
+def format_price(value):
+    return u"-$%s" % abs(value) if value < 0 else u"$%s" % value
