@@ -5,15 +5,15 @@ from django.contrib.admin.options import TabularInline, ModelAdmin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.urlresolvers import resolve
 from django.utils.translation import ugettext_lazy as _
-from shop_simplevariations.models import Option, OptionGroup, TextOption, OptionGroupOption, OptionGroupProduct
+from shop_simplevariations.models import Option, OptionGroup, TextOption, GroupDefaultOptionThrough, GroupProductThrough
 
-class OptionGroupProductInline(TabularInline):
-    model = OptionGroupProduct
+class GroupProductThroughInline(TabularInline):
+    model = GroupProductThrough
     verbose_name = "product"
     verbose_name_plural = u"%ss" % verbose_name
 
-class OptionGroupOptionInline(TabularInline):
-    model = OptionGroupOption
+class GroupDefaultOptionThroughInline(TabularInline):
+    model = GroupDefaultOptionThrough
     verbose_name = "default option"
     verbose_name_plural = u"%ss" % verbose_name
     extra = 0
@@ -29,13 +29,13 @@ class OptionGroupOptionInline(TabularInline):
                 option_pks = og.get_options().values_list('pk', flat=True)
                 kwargs.setdefault('queryset', Option.objects.filter(pk__in=option_pks))
         
-        return super(OptionGroupOptionInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(GroupDefaultOptionThroughInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class OptionInline(TabularInline):
     model = Option
 
 class OptionGroupAdmin(ModelAdmin):
-    inlines = [OptionGroupProductInline, OptionInline, OptionGroupOptionInline]
+    inlines = [GroupProductThroughInline, OptionInline, GroupDefaultOptionThroughInline]
     prepopulated_fields = {"slug": ("name",)}
     
     formfield_overrides = {

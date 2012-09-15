@@ -46,14 +46,15 @@ class CartItemTextOption(models.Model):
 #===============================================================================
 # Multiple choice options
 #===============================================================================
-class OptionGroupOption(models.Model):
+class GroupDefaultOptionThrough(models.Model):
     class Meta:
         ordering = ["order"]
+    
     group = models.ForeignKey("OptionGroup")
     option = models.ForeignKey("Option")
     order = models.FloatField(default=0)
 
-class OptionGroupProduct(models.Model):
+class GroupProductThrough(models.Model):
     class Meta:
         ordering = ["order"]
     group = models.ForeignKey("OptionGroup")
@@ -70,12 +71,12 @@ class OptionGroup(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField() # Used in forms for example
     description = models.CharField(max_length=255, blank=True, null=True)
-    products = models.ManyToManyField(Product, through=OptionGroupProduct,
+    products = models.ManyToManyField(Product, through=GroupProductThrough,
                                       blank=True, null=True)
     subgroup = models.ForeignKey('self', blank=True, null=True)
     choose_count = models.PositiveSmallIntegerField(default=0)
     required = models.BooleanField(default=True, blank=True)
-    defaults = models.ManyToManyField("Option", through=OptionGroupOption, null=True, blank=True)
+    defaults = models.ManyToManyField("Option", through=GroupDefaultOptionThrough, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -98,7 +99,7 @@ class OptionGroup(models.Model):
         A helper method to retrieve the default options.  If "defaults" is not set and
         subgroup is set, attempt to traverse the subgroup tree until defaults are found.
         '''
-        ogos = OptionGroupOption.objects.filter(group=self)
+        ogos = GroupDefaultOptionThrough.objects.filter(group=self)
         defaults = [ogo.option for ogo in ogos]
         if not defaults and self.subgroup:
             defaults = self.subgroup.get_defaults()
