@@ -1,4 +1,5 @@
 from django import template
+from ..models import OptionGroupProduct
 from ..util import create_option_group_name
 
 register = template.Library()
@@ -7,7 +8,8 @@ register = template.Library()
 @register.filter
 def get_option_groups(value):
     """Returns all option groups for the given product."""
-    return value.option_groups.all()
+    ogps = OptionGroupProduct.objects.filter(product=value).select_related('group')
+    return [ogp.group for ogp in ogps]
 
 
 @register.filter

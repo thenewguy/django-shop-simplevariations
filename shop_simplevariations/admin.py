@@ -5,7 +5,12 @@ from django.contrib.admin.options import TabularInline, ModelAdmin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.urlresolvers import resolve
 from django.utils.translation import ugettext_lazy as _
-from shop_simplevariations.models import Option, OptionGroup, TextOption, OptionGroupOption
+from shop_simplevariations.models import Option, OptionGroup, TextOption, OptionGroupOption, OptionGroupProduct
+
+class OptionGroupProductInline(TabularInline):
+    model = OptionGroupProduct
+    verbose_name = "product"
+    verbose_name_plural = u"%ss" % verbose_name
 
 class OptionGroupOptionInline(TabularInline):
     model = OptionGroupOption
@@ -30,7 +35,7 @@ class OptionInline(TabularInline):
     model = Option
 
 class OptionGroupAdmin(ModelAdmin):
-    inlines = [OptionInline, OptionGroupOptionInline]
+    inlines = [OptionGroupProductInline, OptionInline, OptionGroupOptionInline]
     prepopulated_fields = {"slug": ("name",)}
     
     formfield_overrides = {

@@ -53,6 +53,13 @@ class OptionGroupOption(models.Model):
     option = models.ForeignKey("Option")
     order = models.FloatField(default=0)
 
+class OptionGroupProduct(models.Model):
+    class Meta:
+        ordering = ["order"]
+    group = models.ForeignKey("OptionGroup")
+    product = models.ForeignKey(Product)
+    order = models.FloatField(default=0)
+
 class OptionGroup(models.Model):
     '''
     A logical group of options
@@ -63,7 +70,7 @@ class OptionGroup(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField() # Used in forms for example
     description = models.CharField(max_length=255, blank=True, null=True)
-    products = models.ManyToManyField(Product, related_name="option_groups",
+    products = models.ManyToManyField(Product, through=OptionGroupProduct,
                                       blank=True, null=True)
     subgroup = models.ForeignKey('self', blank=True, null=True)
     choose_count = models.PositiveSmallIntegerField(default=0)
