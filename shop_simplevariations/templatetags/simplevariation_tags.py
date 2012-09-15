@@ -55,32 +55,16 @@ def get_option_group_name(value, choice):
     return create_option_group_name(value, choice)
 
 @register.assignment_tag
-def get_default_option(**kwargs):
+def get_default_option(group, choice):
     """
-        option: the option model instance in question
         group: the option group that references the option
         choice: the option group choice count
         
-        if defaults are not set, return false.
+        if len(options) < choice return None
         
-        if defaults are set, and there are more choices than
-        defaults, choices that do not have a default set
-        will use the last default set.
-        
-        e.g. defaults [a, b]
-        choice 1 default is a
-        choice 2 default is b
-        choice 3 default is b
     """
-    option = kwargs["option"]
-    group = kwargs["group"]
-    choice = kwargs["choice"]
-    options = group.get_defaults()
-    
-    if len(options) < choice:
-        choice = len(options)
-    
-    return options[choice-1] if options else None
+    options = group.get_defaults() if group else []
+    return None if len(options) < choice else options[choice-1] 
 
 @register.filter
 def relative_price(option, base):
