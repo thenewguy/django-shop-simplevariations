@@ -46,6 +46,12 @@ class CartItemTextOption(models.Model):
 #===============================================================================
 # Multiple choice options
 #===============================================================================
+class OptionGroupOption(models.Model):
+    class Meta:
+        ordering = ["order"]
+    group = models.ForeignKey("OptionGroup")
+    option = models.ForeignKey("Option")
+    order = models.FloatField(default=0)
 
 class OptionGroup(models.Model):
     '''
@@ -62,7 +68,7 @@ class OptionGroup(models.Model):
     subgroup = models.ForeignKey('self', blank=True, null=True)
     choose_count = models.PositiveSmallIntegerField(default=0)
     required = models.BooleanField(default=True, blank=True)
-    defaults = models.ManyToManyField("Option", null=True, blank=True)
+    defaults = models.ManyToManyField("Option", through=OptionGroupOption, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -85,7 +91,8 @@ class OptionGroup(models.Model):
         A helper method to retrieve the default options.  If "defaults" is not set and
         subgroup is set, attempt to traverse the subgroup tree until defaults are found.
         '''
-        defaults = self.defaults.all()
+        ogos = OptionGroupOption.objects.filter(group=self)
+        defaults = [ogo.option for ogo in ogos]
         if not defaults and self.subgroup:
             defaults = self.subgroup.get_defaults()
         return defaults 

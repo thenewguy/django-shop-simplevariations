@@ -5,13 +5,16 @@ from django.contrib.admin.options import TabularInline, ModelAdmin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.urlresolvers import resolve
 from django.utils.translation import ugettext_lazy as _
-from shop_simplevariations.models import Option, OptionGroup, TextOption
+from shop_simplevariations.models import Option, OptionGroup, TextOption, OptionGroupOption
+
+class OptionGroupOptionInline(TabularInline):
+    model = OptionGroupOption
 
 class OptionInline(TabularInline):
     model = Option
 
 class OptionGroupAdmin(ModelAdmin):
-    inlines = [OptionInline,]
+    inlines = [OptionInline, OptionGroupOptionInline]
     prepopulated_fields = {"slug": ("name",)}
     
     def formfield_for_manytomany(self, db_field, request, **kwargs):

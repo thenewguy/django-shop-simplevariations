@@ -17,7 +17,7 @@ def get_options(value):
 
 @register.filter
 def get_defaults(value):
-    return value.defaults.all()
+    return value.get_defaults()
 
 @register.filter
 def get_xrange(value, start=0):
@@ -75,7 +75,7 @@ def get_default_option(**kwargs):
     option = kwargs["option"]
     group = kwargs["group"]
     choice = kwargs["choice"]
-    options = group.defaults.all()
+    options = group.get_defaults()
     
     if len(options) < choice:
         choice = len(options)
