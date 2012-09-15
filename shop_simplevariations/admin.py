@@ -9,28 +9,9 @@ from shop_simplevariations.models import Option, OptionGroup, TextOption, Option
 
 class OptionGroupOptionInline(TabularInline):
     model = OptionGroupOption
-
-class OptionInline(TabularInline):
-    model = Option
-
-class OptionGroupAdmin(ModelAdmin):
-    inlines = [OptionInline, OptionGroupOptionInline]
-    prepopulated_fields = {"slug": ("name",)}
     
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "products":
-            kwargs.setdefault('widget', FilteredSelectMultiple(
-                    verbose_name=_('products'),
-                    is_stacked=False
-                )
-            )
-        elif db_field.name == "defaults":
-            kwargs.setdefault('widget', FilteredSelectMultiple(
-                    verbose_name=_('default options'),
-                    is_stacked=False
-                )
-            )
-            
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "option":
             # limit defaults to valid options of the OptionGroup
             match = resolve(request.get_full_path())
             if len(match.args) == 1:
@@ -40,7 +21,21 @@ class OptionGroupAdmin(ModelAdmin):
                 option_pks = og.get_options().values_list('pk', flat=True)
                 kwargs.setdefault('queryset', Option.objects.filter(pk__in=option_pks))
         
-        return super(OptionGroupAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super(OptionGroupOptionInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+class OptionInline(TabularInline):
+    model = Option
+
+class OptionGroupAdmin(ModelAdmin):
+    inlines = [OptionInline, OptionGroupOptionInline]
+    prepopulated_fields = {"slug": ("name",)}
+    
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': FilteredSelectMultiple(
+            verbose_name=_('products'),
+            is_stacked=False
+        )},
+    }
 
 admin.site.register(OptionGroup, OptionGroupAdmin)
 
