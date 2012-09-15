@@ -11,6 +11,7 @@ class GroupProductThroughInline(TabularInline):
     model = GroupProductThrough
     verbose_name = "product"
     verbose_name_plural = u"%ss" % verbose_name
+    extra = 0
 
 class GroupDefaultOptionThroughInline(TabularInline):
     model = GroupDefaultOptionThrough
