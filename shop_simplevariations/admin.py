@@ -6,6 +6,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.urlresolvers import resolve
 from django.utils.translation import ugettext_lazy as _
 from shop_simplevariations.models import Option, OptionGroup, TextOption, GroupDefaultOptionThrough, GroupProductThrough
+from forms import GroupDefaultOptionThroughInlineFormSet
 
 class GroupProductThroughInline(TabularInline):
     model = GroupProductThrough
@@ -18,6 +19,7 @@ class GroupDefaultOptionThroughInline(TabularInline):
     verbose_name = "default option"
     verbose_name_plural = u"%ss" % verbose_name
     extra = 0
+    formset = GroupDefaultOptionThroughInlineFormSet
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "option":
