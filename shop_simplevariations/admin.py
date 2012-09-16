@@ -6,7 +6,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.urlresolvers import resolve
 from django.utils.translation import ugettext_lazy as _
 from shop_simplevariations.models import Option, OptionGroup, TextOption, GroupDefaultOptionThrough, GroupProductThrough
-from forms import GroupDefaultOptionThroughInlineFormSet
+from formsets import GroupDefaultOptionThroughInlineFormSet
 
 class GroupProductThroughInline(TabularInline):
     model = GroupProductThrough
@@ -27,6 +27,8 @@ class GroupDefaultOptionThroughInline(TabularInline):
             match = resolve(request.get_full_path())
             if len(match.args) == 1:
                 object_id = match.args[0]
+            else:
+                object_id = None
             if object_id:
                 og = OptionGroup.objects.get(pk=object_id)
                 option_pks = og.get_options().values_list('pk', flat=True)
