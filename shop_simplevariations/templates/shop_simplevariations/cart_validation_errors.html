@@ -1,0 +1,22 @@
+{% extends "shop/base.html" %}
+
+{% block title %}
+    Validation Error
+{% endblock %}
+
+{% block body %}
+    <h1>Cart Submission Contained Validation Errors!</h1>
+    <ul>
+	    {% for field_name, error_dict in errors.items %}
+	        <li>
+		        {{ field_name}}
+		        <dl>
+			        {% for error, description in error_dict.items %}
+			            <dt>{{ error }}</dt>
+			            <dd>{{ description }}</dd>
+			        {% endfor %}
+		        </dl>
+	        </li>
+	    {% endfor %}
+    </ul>
+{% endblock %}

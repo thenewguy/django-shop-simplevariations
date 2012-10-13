@@ -70,7 +70,7 @@ class SimplevariationCartDetails(CartDetails):
         if errors:
             return render_errors_response(
                 request = self.request,
-                template_name = "shop/cart_validation_errors.html",
+                template_name = "shop_simplevariations/cart_validation_errors.html",
                 errors = errors
             )
         
