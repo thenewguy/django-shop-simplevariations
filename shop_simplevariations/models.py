@@ -57,6 +57,8 @@ class GroupDefaultOptionThrough(models.Model):
 class GroupProductThrough(models.Model):
     class Meta:
         ordering = ["order"]
+        unique_together = ("group", "product")
+        
     group = models.ForeignKey("OptionGroup")
     product = models.ForeignKey(Product)
     order = models.FloatField(default=0)
