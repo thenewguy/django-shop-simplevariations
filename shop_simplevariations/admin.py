@@ -49,6 +49,8 @@ class OptionGroupAdmin(ModelAdmin):
             is_stacked=False
         )},
     }
+    
+    list_display = ("__unicode__", "name", "description")
 
 admin.site.register(OptionGroup, OptionGroupAdmin)
 

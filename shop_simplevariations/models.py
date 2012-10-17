@@ -81,7 +81,10 @@ class OptionGroup(models.Model):
     defaults = models.ManyToManyField("Option", through=GroupDefaultOptionThrough, null=True, blank=True)
 
     def __unicode__(self):
-        return self.name
+        value = self.name
+        if self.subgroup:
+            value = "%s - %s" % (self.subgroup, value)
+        return value
 
     def get_options(self):
         '''
