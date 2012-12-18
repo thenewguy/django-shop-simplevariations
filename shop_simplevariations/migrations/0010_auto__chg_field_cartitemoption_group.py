@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'CartItemOption.group'
-        db.alter_column('shop_simplevariations_cartitemoption', 'group_id', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['shop_simplevariations.OptionGroup']))
+        db.alter_column('shop_simplevariations_cartitemoption', 'group_id', self.gf('django.db.models.fields.related.ForeignKey')(null=False, to=orm['shop_simplevariations.OptionGroup']))
 
     def backwards(self, orm):
 
